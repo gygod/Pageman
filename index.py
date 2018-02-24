@@ -1,21 +1,34 @@
-from flask import Flask
-from flask.ext.restful import Api,Resource
+from flask import Flask, jsonify
+from flask_restful import Api, Resource
+from uuid import uuid4
+from flask_pymongo import PyMongo
 
 app = Flask(__name__)
-app = Api(app)
+mongo = PyMongo(app)
 
-class UserAPI(Resource):
-    def get(self, id):
-        pass
-    def put(self, id):
-        pass
-    def delete(self, id):
-        pass
-    def post(self, id):
-        pass
+app.config['MONGO_URI'] = ''
 
-api.add_resource(UserAPI, '/users/<int:id>',endpoint="user")
+data = [
+    {
+        'id':1,
+        'title': 'something',
+        'done': False
+    },
+    {
+        'id':2,
+        'title': 'something',
+        'done': True
+    }
+]
+
+
+
+@app.route('/')
+
+def show_data():
+    print(str(uuid4()))
+    return jsonify({'data': data})
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host="localhost", debug=True)
