@@ -1,6 +1,7 @@
 import pymongo
+from uuid import uuid4
 
-class EntryManager(object):
+class EntriesManager(object):
     from config import getData
     # getData return a dic.
     # {
@@ -21,7 +22,7 @@ class EntryManager(object):
     """
 
     COLLECTION_NAME = 'Page'
-    DB_NAME = 'Pageman'
+    DB_NAME = 'pageman'
 
     ID = '_id'
     TITLE = 'p_title'
@@ -29,25 +30,54 @@ class EntryManager(object):
     DATE = 'p_date'
 
     
-    def __init__(self, mongodb_url=None, db_name=DB_NAME, port=None):
+    def __init__(self, mongodb_url=None, db_name=DB_NAME, host=None, port=None, username=None, password=None,COLLECTION_NAME=COLLECTION_NAME):
         self.mongodb_url = mongodb_url
         self.port = port
         self._client = None
         self.COLLECTION_NAME = COLLECTION_NAME
+        self.username = username
+        self.password = password
+        self.host = host
+        self.db_name = db_name
+        self._db = None
 
     def __enter__(self):
         self.connect()
         return self
 
     def __exit__(self):
-        self.connectiont.close()
+        self.connection.close()
 
     def connect(self):
-        assert self.url is not None
+        assert self.mongodb_url is not None
+        if self.host is None:
+            self.host = self.mongodb_url
         self._client = pymongo.MongoClient(self.host, self.port)
-        self._db = self._client[db_name]
+        self._db = self._client[self.db_name]
+        if self.username is not None and self.password is not None:
+            self._db.authenticate(self.username, self.password)
 
     def getEntries(self, _from=None, _to=None):
         _skip = 0 if _from is None else _from
         _limit = 0 if _to is None else to - skip
         return self._db[self.COLLECTION_NAME].find(skip=_skip, limit=_limit).sort([(Entry.FIELD_DATE, pymongo.DESCENDING)])
+
+    def count(self):
+        self._db[self.COLLECTION_NAME].count()
+
+    def save(self, entry):
+        if not isinstance(entry, Entry):
+            raise TypeError('is not Entry class')
+        data = {}
+        if entry.getId() is not None:
+            data[self.FIELD_ID] = entry.getId()
+
+class Entry:
+    def __init__(self):
+        pass
+
+
+if __name__ == '__main__':
+   pageman = EntryManager(mongodb_url='ds155097.mlab.com', port=55097, username='root', password='abc123')
+   pageman.connect()
+   print(pageman)
