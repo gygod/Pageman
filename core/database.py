@@ -62,15 +62,20 @@ class EntriesManager(object):
         _limit = 0 if _to is None else to - skip
         return self._db[self.COLLECTION_NAME].find(skip=_skip, limit=_limit).sort([(Entry.FIELD_DATE, pymongo.DESCENDING)])
 
-    def count(self):
+    def countEntry(self):
         self._db[self.COLLECTION_NAME].count()
 
-    def save(self, entry):
+    def saveEntry(self, entry):
         if not isinstance(entry, Entry):
             raise TypeError('is not Entry class')
         data = {}
         if entry.getId() is not None:
             data[self.FIELD_ID] = entry.getId()
+
+
+    def deleteEntry(self, id_and_data):
+        pass
+        
 
 class Entry:
     def __init__(self):
@@ -78,6 +83,6 @@ class Entry:
 
 
 if __name__ == '__main__':
-   pageman = EntryManager(mongodb_url='ds155097.mlab.com', port=55097, username='root', password='abc123')
+   pageman = EntriesManager(mongodb_url='ds155097.mlab.com', port=55097, username='root', password='abc123')
    pageman.connect()
    print(pageman)
